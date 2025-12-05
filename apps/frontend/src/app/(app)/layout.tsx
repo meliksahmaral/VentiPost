@@ -5,12 +5,11 @@ import '../global.scss';
 import 'react-tooltip/dist/react-tooltip.css';
 import '@copilotkit/react-ui/styles.css';
 import LayoutContext from '@gitroom/frontend/components/layout/layout.context';
-import { ReactNode } from 'react';
+import { ReactNode, Fragment } from 'react';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
 import clsx from 'clsx';
 import { VariableContextComponent } from '@gitroom/react/helpers/variable.context';
-import { Fragment } from 'react';
 import { PHProvider } from '@gitroom/react/helpers/posthog';
 import UtmSaver from '@gitroom/helpers/utils/utm.saver';
 import { ToltScript } from '@gitroom/frontend/components/layout/tolt.script';
@@ -34,16 +33,30 @@ const jakartaSans = Plus_Jakarta_Sans({
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const allHeaders = headers();
+
   const Plausible = !!process.env.STRIPE_PUBLISHABLE_KEY
     ? PlausibleProvider
     : Fragment;
+
+  const isGeneral = !!process.env.IS_GENERAL;
+
+  // Plausible domain mantığı:
+  // 1) Varsa NEXT_PUBLIC_PLAUSIBLE_DOMAIN kullan
+  // 2) Yoksa eski fallback: isGeneral ? postiz.com : gitroom.com
+  const plausibleDomain =
+    process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ||
+    (isGeneral ? 'postiz.com' : 'gitroom.com');
+
   return (
     <html>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body
-        className={clsx(jakartaSans.className, 'dark text-primary !bg-primary')}
+        className={clsx(
+          jakartaSans.className,
+          'dark text-primary !bg-primary'
+        )}
       >
         <VariableContextComponent
           storageProvider={
@@ -55,7 +68,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           billingEnabled={!!process.env.STRIPE_PUBLISHABLE_KEY}
           discordUrl={process.env.NEXT_PUBLIC_DISCORD_SUPPORT!}
           frontEndUrl={process.env.FRONTEND_URL!}
-          isGeneral={!!process.env.IS_GENERAL}
+          isGeneral={isGeneral}
           genericOauth={!!process.env.POSTIZ_GENERIC_OAUTH}
           oauthLogoUrl={process.env.NEXT_PUBLIC_POSTIZ_OAUTH_LOGO_URL!}
           oauthDisplayName={process.env.NEXT_PUBLIC_POSTIZ_OAUTH_DISPLAY_NAME!}
@@ -83,9 +96,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             <HtmlComponent />
             <ToltScript />
             <FacebookComponent />
-            <Plausible
-              domain={!!process.env.IS_GENERAL ? 'postiz.com' : 'gitroom.com'}
-            >
+            <Plausible domain={plausibleDomain}>
               <PHProvider
                 phkey={process.env.NEXT_PUBLIC_POSTHOG_KEY}
                 host={process.env.NEXT_PUBLIC_POSTHOG_HOST}

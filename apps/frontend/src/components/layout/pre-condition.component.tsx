@@ -9,9 +9,11 @@ export const PreConditionComponentModal: FC = () => {
   return (
     <div className="flex flex-col gap-[16px]">
       <div className="whitespace-pre-line">
-        This social channel was connected previously to another Postiz account.
+        This social channel was connected previously to another VentiPost
+        account.
         {'\n'}
-        To continue, please fast-track your trial for an immediate charge.{'\n'}
+        To continue, please fast-track your trial for an immediate charge.
+        {'\n'}
         {'\n'}
         ** Please be advised that the account will not eligible for a refund,
         and the charge is final.
@@ -22,14 +24,18 @@ export const PreConditionComponentModal: FC = () => {
         >
           Fast track - Charge me now
         </Button>
-        <Button onClick={modal.closeCurrent} secondary={true}>Cancel</Button>
+        <Button onClick={modal.closeCurrent} secondary={true}>
+          Cancel
+        </Button>
       </div>
     </div>
   );
 };
+
 export const PreConditionComponent: FC = () => {
   const modal = useModals();
   const query = useSearchParams();
+
   useEffect(() => {
     if (query.get('precondition')) {
       modal.openModal({
@@ -42,5 +48,6 @@ export const PreConditionComponent: FC = () => {
       });
     }
   }, []);
+
   return null;
 };

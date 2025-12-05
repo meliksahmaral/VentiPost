@@ -3,10 +3,10 @@ import { Metadata } from 'next';
 import { isGeneralServerSide } from '@gitroom/helpers/utils/is.general.server.side';
 
 export const metadata: Metadata = {
-  title: `${isGeneralServerSide() ? 'Postiz' : 'Gitroom'} Media`,
+  title: 'VentiPost Media',
   description: '',
 };
 
 export default async function Page() {
-  return <MediaLayoutComponent />
+  return <MediaLayoutComponent />;
 }

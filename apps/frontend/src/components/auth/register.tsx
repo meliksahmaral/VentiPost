@@ -22,6 +22,7 @@ import { FarcasterProvider } from '@gitroom/frontend/components/auth/providers/f
 import dynamic from 'next/dynamic';
 import { WalletUiProvider } from '@gitroom/frontend/components/auth/providers/placeholder/wallet.ui.provider';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
+
 const WalletProvider = dynamic(
   () => import('@gitroom/frontend/components/auth/providers/wallet.provider'),
   {
@@ -29,6 +30,7 @@ const WalletProvider = dynamic(
     loading: () => <WalletUiProvider />,
   }
 );
+
 type Inputs = {
   email: string;
   password: string;
@@ -36,17 +38,20 @@ type Inputs = {
   providerToken: string;
   provider: string;
 };
+
 export function Register() {
   const getQuery = useSearchParams();
   const fetch = useFetch();
   const [provider] = useState(getQuery?.get('provider')?.toUpperCase());
   const [code, setCode] = useState(getQuery?.get('code') || '');
   const [show, setShow] = useState(false);
+
   useEffect(() => {
     if (provider && code) {
       load();
     }
   }, []);
+
   const load = useCallback(async () => {
     const { token } = await (
       await fetch(`/auth/oauth/${provider?.toUpperCase() || 'LOCAL'}/exists`, {
@@ -56,21 +61,26 @@ export function Register() {
         }),
       })
     ).json();
+
     if (token) {
       setCode(token);
       setShow(true);
     }
   }, [provider, code]);
+
   if (!code && !provider) {
     return <RegisterAfter token="" provider="LOCAL" />;
   }
+
   if (!show) {
     return <LoadingComponent />;
   }
+
   return (
     <RegisterAfter token={code} provider={provider?.toUpperCase() || 'LOCAL'} />
   );
 }
+
 function getHelpfulReasonForRegistrationFailure(httpCode: number) {
   switch (httpCode) {
     case 400:
@@ -80,6 +90,7 @@ function getHelpfulReasonForRegistrationFailure(httpCode: number) {
   }
   return 'Unhandled error: ' + httpCode;
 }
+
 export function RegisterAfter({
   token,
   provider,
@@ -94,12 +105,15 @@ export function RegisterAfter({
   const router = useRouter();
   const fireEvents = useFireEvents();
   const track = useTrack();
+
   const isAfterProvider = useMemo(() => {
     return !!token && !!provider;
   }, [token, provider]);
+
   const resolver = useMemo(() => {
     return classValidatorResolver(CreateOrgUserDto);
   }, []);
+
   const form = useForm<Inputs>({
     resolver,
     defaultValues: {
@@ -107,7 +121,9 @@ export function RegisterAfter({
       provider: provider,
     },
   });
+
   const fetchData = useFetch();
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
     await fetchData('/auth/register', {
@@ -142,6 +158,7 @@ export function RegisterAfter({
         });
       });
   };
+
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -167,10 +184,10 @@ export function RegisterAfter({
         {!isAfterProvider && (
           <div className="h-[20px] mb-[24px] mt-[24px] relative">
             <div className="absolute w-full h-[1px] bg-fifth top-[50%] -translate-y-[50%]" />
-            <div
-              className={`absolute z-[1] justify-center items-center w-full start-0 top-0 flex`}
-            >
-              <div className="bg-customColor15 px-[16px]">{t('or', 'OR')}</div>
+            <div className="absolute z-[1] justify-center items-center w-full start-0 top-0 flex">
+              <div className="bg-customColor15 px-[16px]">
+                {t('or', 'OR')}
+              </div>
             </div>
           </div>
         )}
@@ -204,20 +221,24 @@ export function RegisterAfter({
           {t(
             'by_registering_you_agree_to_our',
             'By registering you agree to our'
-          )}&nbsp;
+          )}
+          &nbsp;
           <a
-            href={`https://postiz.com/terms`}
+            href={`https://ventipost.com/terms`}
             className="underline hover:font-bold"
           >
             {t('terms_of_service', 'Terms of Service')}
-          </a>&nbsp;
-          {t('and', 'and')}&nbsp;
+          </a>
+          &nbsp;
+          {t('and', 'and')}
+          &nbsp;
           <a
-            href={`https://postiz.com/privacy`}
+            href={`https://ventipost.com/privacy`}
             className="underline hover:font-bold"
           >
             {t('privacy_policy', 'Privacy Policy')}
-          </a>&nbsp;
+          </a>
+          &nbsp;
         </div>
         <div className="text-center mt-6">
           <div className="w-full flex">
@@ -230,7 +251,8 @@ export function RegisterAfter({
             </Button>
           </div>
           <p className="mt-4 text-sm">
-            {t('already_have_an_account', 'Already Have An Account?')}&nbsp;
+            {t('already_have_an_account', 'Already Have An Account?')}
+            &nbsp;
             <Link href="/auth/login" className="underline  cursor-pointer">
               {t('sign_in', 'Sign In')}
             </Link>

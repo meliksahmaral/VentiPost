@@ -32,11 +32,15 @@ import { AddEditModal } from '@gitroom/frontend/components/new-launch/add.edit.m
 import dayjs from 'dayjs';
 import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
 import { ExistingDataContextProvider } from '@gitroom/frontend/components/launches/helpers/use.existing.data';
+import { useT } from '@gitroom/react/translation/get.transation.service.client';
 
 export const AgentChat: FC = () => {
-  const { backendUrl } = useVariables();
+  const { backendUrl, isGeneral } = useVariables();
   const params = useParams<{ id: string }>();
   const { properties } = useContext(PropertiesContext);
+  const t = useT();
+
+  const brandName = isGeneral ? 'Postiz' : 'Gitroom';
 
   return (
     <CopilotKit
@@ -44,6 +48,7 @@ export const AgentChat: FC = () => {
       credentials="include"
       runtimeUrl={backendUrl + '/copilot/agent'}
       showDevConsole={false}
+      // DİKKAT: Bu agent id backend konfig ile bağlı, ismini değiştirmiyoruz
       agent="postiz"
       properties={{
         integrations: properties,
@@ -64,17 +69,19 @@ export const AgentChat: FC = () => {
           <CopilotChat
             className="w-full h-full"
             labels={{
-              title: 'Your Assistant',
-              initial: `Hello, I am your Postiz agent 🙌🏻.
-              
+              title: t('agent_title', 'Your Assistant'),
+              initial: t(
+                'agent_initial_message',
+                `Hello, I am your ${brandName} agent 🙌🏻.
+
 I can schedule a post or multiple posts to multiple channels and generate pictures and videos.
 
 You can select the channels you want to use from the left menu.
 
 You can see your previous conversations from the right menu.
 
-You can also use me as an MCP Server, check Settings >> Public API
-`,
+You can also use me as an MCP Server, check Settings >> Public API`
+              ),
             }}
             UserMessage={Message}
             Input={NewInput}
@@ -126,7 +133,7 @@ const Message: FC<UserMessageProps> = (props) => {
       })
       .replace(
         /(\[--integrations--\][\s\S]*?\[--integrations--\])/g,
-        (match, p1) => {
+        () => {
           return ``;
         }
       );
@@ -138,6 +145,7 @@ const Message: FC<UserMessageProps> = (props) => {
     />
   );
 };
+
 const NewInput: FC<InputProps> = (props) => {
   const [media, setMedia] = useState([] as { path: string; id: string }[]);
   const [value, setValue] = useState('');

@@ -5,21 +5,23 @@ import clsx from 'clsx';
 import { useVariables } from '@gitroom/react/helpers/variable.context';
 import { useUser } from '@gitroom/frontend/components/layout/user.context';
 import { useT } from '@gitroom/react/translation/get.transation.service.client';
+
 const useFaqList = () => {
   const { isGeneral } = useVariables();
   const user = useUser();
   const t = useT();
+
   return [
     ...(user?.allowTrial
       ? [
           {
             title: t(
               'faq_am_i_going_to_be_charged_by_postiz',
-              'Am I going to be charged by Postiz?'
+              'Am I going to be charged by VentiPost?'
             ),
             description: t(
               'faq_to_confirm_credit_card_information_postiz_will_hold',
-              'To confirm credit card information Postiz will hold $2 and release it immediately'
+              'To confirm credit card information VentiPost will hold $2 and release it immediately'
             ),
           },
         ]
@@ -27,14 +29,14 @@ const useFaqList = () => {
     {
       title: t(
         'faq_can_i_trust_postiz_gitroom',
-        `Can I trust ${isGeneral ? 'Postiz' : 'Gitroom'}?`
+        `Can I trust ${isGeneral ? 'VentiPost' : 'Gitroom'}?`
       ),
       description: t(
         'faq_postiz_gitroom_is_proudly_open_source',
         `${
-          isGeneral ? 'Postiz' : 'Gitroom'
+          isGeneral ? 'VentiPost' : 'Gitroom'
         } is proudly open-source! We believe in an ethical and transparent culture, meaning that ${
-          isGeneral ? 'Postiz' : 'Gitroom'
+          isGeneral ? 'VentiPost' : 'Gitroom'
         } will live forever. You can check out the entire code or use it for personal projects. To view the open-source repository, <a href="https://github.com/gitroomhq/postiz-app" target="_blank" style="text-decoration: underline;">click here</a>.`
       ),
     },
@@ -43,7 +45,7 @@ const useFaqList = () => {
       description: t(
         'faq_postiz_gitroom_allows_you_to_schedule_posts',
         `${
-          isGeneral ? 'Postiz' : 'Gitroom'
+          isGeneral ? 'VentiPost' : 'Gitroom'
         } allows you to schedule your posts between different channels.
 A channel is a publishing platform where you can schedule your posts.
 For example, you can schedule your posts on X, Facebook, Instagram, TikTok, YouTube, Reddit, Linkedin, Dribbble, Threads and Pinterest.`
@@ -58,23 +60,24 @@ For example, you can schedule your posts on X, Facebook, Instagram, TikTok, YouT
     },
   ];
 };
+
 export const FAQSection: FC<{
   title: string;
   description: string;
 }> = (props) => {
   const { title, description } = props;
   const [show, setShow] = useState(false);
+
   const changeShow = useCallback(() => {
     setShow(!show);
   }, [show]);
+
   return (
     <div
       className="bg-sixth p-[24px] border border-tableBorder rounded-[4px] flex flex-col"
       onClick={changeShow}
     >
-      <div
-        className={`text-[20px] cursor-pointer flex justify-center`}
-      >
+      <div className="text-[20px] cursor-pointer flex justify-center">
         <div className="flex-1">{title}</div>
         <div className="flex items-center justify-center w-[32px]">
           {!show ? (
@@ -120,7 +123,7 @@ export const FAQSection: FC<{
           onClick={(e) => {
             e.stopPropagation();
           }}
-          className={`mt-[16px] w-full text-wrap font-[400] text-[16px] text-customColor17 select-text`}
+          className="mt-[16px] w-full text-wrap font-[400] text-[16px] text-customColor17 select-text"
           dangerouslySetInnerHTML={{
             __html: description,
           }}
@@ -129,9 +132,11 @@ export const FAQSection: FC<{
     </div>
   );
 };
+
 export const FAQComponent: FC = () => {
   const t = useT();
   const list = useFaqList();
+
   return (
     <div>
       <h3 className="text-[24px] text-center mt-[81px] mb-[40px]">
