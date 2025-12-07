@@ -1,9 +1,6 @@
-# -----------------------------------------------------
-# 1) Node LTS (20 değil — 18 LTS kullanıyoruz)
-# Postiz ve Gitroom resmi olarak Node 18 LTS uyumlu
-# -----------------------------------------------------
 FROM node:18-bullseye
 
+# Ortam değişkenleri
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max_old_space_size=4096
 ENV COREPACK_ENABLE_STRICT=0
@@ -23,6 +20,7 @@ COPY apps/workers/package.json ./apps/workers/
 COPY apps/cron/package.json ./apps/cron/
 
 # Tüm node_modules kurulur
+# (lockfile hatasını çözmek için frozen-lockfile KULLANMIYORUZ)
 RUN pnpm install --no-frozen-lockfile
 
 # Kodun tamamını kopyala
@@ -38,7 +36,7 @@ RUN pnpm -r \
   run build
 
 # pm2 global
-RUN pnpm add -g pm2
+RUN npm install -g pm2@5
 
 # Uygulama start script
-CMD ["pm2-runtime", "pm2.config.cjs"]
+CMD ["pnpm", "run", "pm2-run"]
