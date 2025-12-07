@@ -1,30 +1,28 @@
-# Base image: Node 20 + Alpine
 FROM node:20-alpine
 
-# pnpm için gerekli ortam değişkeni
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+# Daha rahat build için ayarlar
+ENV NODE_ENV=production
+ENV NODE_OPTIONS=--max_old_space_size=3072
+ENV COREPACK_ENABLE_STRICT=0
 
-# pnpm’i etkinleştir
-RUN corepack enable
-
-# pm2 global yükle
-RUN npm install -g pm2
-
-# Çalışma klasörü
 WORKDIR /app
 
-# Tüm proje dosyalarını container içine kopyala
+# pnpm aktif et
+RUN corepack enable
+
+# Tüm repo içeriğini kopyala
 COPY . .
 
-# Dependency'leri yükle
+# Dependenceleri kur
 RUN pnpm install --frozen-lockfile
 
-# Build al (frontend + backend + workers + cron)
-RUN pnpm build
+# Build – concurrency düşük, Node heap büyük
+RUN pnpm -r --workspace-concurrency=1 \
+  --filter ./apps/frontend \
+  --filter ./apps/backend \
+  --filter ./apps/workers \
+  --filter ./apps/cron \
+  run build
 
-# Production port
-EXPOSE 5000
-
-# PM2 ile projeyi başlat
-CMD ["pnpm", "run", "pm2-run", "/app"]
+# Uygulamayı başlat (gitroom package.json'daki script)
+CMD ["pnpm", "run", "pm2-run"]
