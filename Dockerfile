@@ -1,29 +1,33 @@
-FROM node:18-bullseye
+FROM node:22.20-alpine
 
-# Ortam ayarları
-ENV NODE_ENV=production
-ENV NODE_OPTIONS=--max_old_space_size=4096
-ENV COREPACK_ENABLE_STRICT=0
+ARG NEXT_PUBLIC_VERSION
+ENV NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
+
+# Gerekli paketler
+RUN apk add --no-cache g++ make py3-pip bash nginx
+
+# Nginx için user ve klasörler
+RUN adduser -D -g 'www' www
+RUN mkdir /www
+RUN chown -R www:www /var/lib/nginx
+RUN chown -R www:www /www
+
+# pnpm ve pm2'yi GLOBAL kur (resmi Postiz imajındaki gibi)
+RUN npm --no-update-notifier --no-fund --global install pnpm@10.6.1 pm2
 
 WORKDIR /app
 
-# pnpm aktif et
-RUN corepack enable
+# Tüm repo içeriğini kopyala
+COPY . /app
 
-# Tüm repo içeriğini kopyala (schema.prisma dahil HER ŞEY)
-COPY . .
+# Nginx konfigürasyonunu kopyala
+COPY var/docker/nginx.conf /etc/nginx/nginx.conf
 
-# Tüm node_modules kurulur
-RUN pnpm install --no-frozen-lockfile
+# Dependenc’leri kur
+RUN pnpm install
 
-# Build - düşük concurrency (RAM dostu)
-RUN pnpm -r \
-  --workspace-concurrency=1 \
-  --filter ./apps/backend \
-  --filter ./apps/frontend \
-  --filter ./apps/workers \
-  --filter ./apps/cron \
-  run build
+# Build (RAM dostu ayarla)
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
-# Uygulama start script (repo’daki scripti kullanıyoruz)
-CMD ["pnpm", "run", "pm2-run"]
+# Container start: nginx + pm2
+CMD ["sh", "-c", "nginx && pnpm run pm2"]
