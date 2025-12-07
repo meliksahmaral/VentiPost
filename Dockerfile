@@ -25,8 +25,5 @@ RUN pnpm -r \
   --filter ./apps/cron \
   run build
 
-# pm2 global
-RUN pnpm add -g pm2
-
-# Uygulama start script
-CMD ["pm2-runtime", "pm2.config.cjs"]
+# Uygulama start script (repo’daki scripti kullanıyoruz)
+CMD ["pnpm", "run", "pm2-run"]
